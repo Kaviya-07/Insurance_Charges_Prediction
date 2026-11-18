@@ -10,9 +10,7 @@ from datetime import datetime
 from streamlit_option_menu import option_menu
 
 
-# ============================================================
 # PAGE CONFIGURATION
-# ============================================================
 
 st.set_page_config(
     page_title="InsureAI | Insurance Analytics",
@@ -22,9 +20,7 @@ st.set_page_config(
 )
 
 
-# ============================================================
 # PROFESSIONAL UI STYLING
-# ============================================================
 
 st.markdown("""
 <style>
@@ -472,18 +468,14 @@ section[data-testid="stSidebar"] hr {
 """, unsafe_allow_html=True)
 
 
-# ============================================================
 # FILE PATHS
-# ============================================================
 
 MODEL_PATH = "insurance_charges_model.pkl"
 DATA_PATH = "insurance.csv"
 EVALUATION_PATH = "model_evaluation.json"
 
 
-# ============================================================
 # LOAD MODEL
-# ============================================================
 
 @st.cache_resource
 def load_model():
@@ -502,9 +494,7 @@ def load_model():
 model = load_model()
 
 
-# ============================================================
 # LOAD DATASET
-# ============================================================
 
 @st.cache_data
 def load_data():
@@ -536,9 +526,7 @@ if evaluation and "_load_error" in evaluation:
     evaluation = None
 
 
-# ============================================================
 # HELPER FUNCTIONS
-# ============================================================
 
 def section(title, icon):
     st.markdown(
@@ -701,9 +689,7 @@ if st.session_state.project_tour_state != "complete":
     show_project_tour()
 
 
-# ============================================================
 # PLOTLY CHART STYLING
-# ============================================================
 
 def style_chart(fig, height=390):
 
@@ -806,17 +792,13 @@ def style_chart(fig, height=390):
     return fig
 
 
-# ============================================================
 # PREDICTION HISTORY
-# ============================================================
 
 if "prediction_history" not in st.session_state:
     st.session_state.prediction_history = []
 
 
-# ============================================================
 # SIDEBAR NAVIGATION
-# ============================================================
 
 with st.sidebar:
 
@@ -872,9 +854,7 @@ with st.sidebar:
         }
     )
 
-# ============================================================
 # CHECK DATASET
-# ============================================================
 
 if df is None:
 
@@ -886,9 +866,7 @@ if df is None:
     st.stop()
 
 
-# ============================================================
 # EXECUTIVE DASHBOARD
-# ============================================================
 
 if page == "Executive Dashboard":
 
@@ -984,9 +962,7 @@ if page == "Executive Dashboard":
                 "person-fill"
             )
 
-        # ====================================================
         # CHART 1: DISTRIBUTION OF INSURANCE CHARGES
-        # ====================================================
 
         section("Insurance Data Analysis", "bar-chart-line")
 
@@ -1025,9 +1001,7 @@ if page == "Executive Dashboard":
                 width="stretch"
             )
 
-        # ====================================================
         # CHART 2: AVERAGE CHARGES BY SMOKING STATUS
-        # ====================================================
 
         with col2:
 
@@ -1072,9 +1046,7 @@ if page == "Executive Dashboard":
 
         col3, col4 = st.columns(2)
 
-        # ====================================================
         # CHART 3: AVERAGE CHARGES BY REGION
-        # ====================================================
 
         with col3:
 
@@ -1119,9 +1091,7 @@ if page == "Executive Dashboard":
                 width="stretch"
             )
 
-        # ====================================================
         # CHART 4: AGE VS INSURANCE CHARGES
-        # ====================================================
 
         with col4:
 
@@ -1161,9 +1131,7 @@ if page == "Executive Dashboard":
                 width="stretch"
             )
 
-        # ====================================================
         # CHART 5: BMI VS INSURANCE CHARGES
-        # ====================================================
 
         section("BMI and Insurance Charges", "activity")
 
@@ -1203,9 +1171,7 @@ if page == "Executive Dashboard":
             width="stretch"
         )
 
-        # ====================================================
         # CHART 6: AVERAGE CHARGES BY AGE GROUP
-        # ====================================================
 
         section("Age Group Analysis", "people")
 
@@ -1271,9 +1237,7 @@ if page == "Executive Dashboard":
                 width="stretch"
             )
 
-        # ====================================================
         # CHART 7: AVERAGE CHARGES BY NUMBER OF CHILDREN
-        # ====================================================
 
         children_data = (
             filtered_df.groupby("children")["charges"]
@@ -1311,9 +1275,7 @@ if page == "Executive Dashboard":
                 width="stretch"
             )
 
-        # ====================================================
         # CHART 8: CHARGES DISTRIBUTION BY SMOKING STATUS
-        # ====================================================
 
         section("Smoking Impact Analysis", "activity")
 
@@ -1355,9 +1317,7 @@ if page == "Executive Dashboard":
                 width="stretch"
             )
 
-        # ====================================================
         # CHART 9: AVERAGE CHARGES BY BMI CATEGORY
-        # ====================================================
 
         bmi_data = filtered_df.copy()
 
@@ -1412,9 +1372,7 @@ if page == "Executive Dashboard":
                 width="stretch"
             )
 
-        # ====================================================
         # CHART 10: CORRELATION HEATMAP
-        # ====================================================
 
         section("Correlation Analysis", "diagram-3")
 
@@ -1448,9 +1406,7 @@ if page == "Executive Dashboard":
             width="stretch"
         )
 
-        # ====================================================
         # BUSINESS INSIGHTS
-        # ====================================================
 
         section("Business Insights", "lightbulb")
 
@@ -1514,9 +1470,8 @@ if page == "Executive Dashboard":
             file_name="insurance_dashboard_data.csv",
             mime="text/csv"
         )
-        # ============================================================
+
 # INSURANCE PREDICTION
-# ============================================================
 
 elif page == "Insurance Prediction":
 
@@ -1712,9 +1667,7 @@ elif page == "Insurance Prediction":
         st.info("No predictions have been generated in this session yet.")
 
 
-# ============================================================
 # DATASET EXPLORER
-# ============================================================
 
 elif page == "Dataset Explorer":
 
@@ -1860,9 +1813,7 @@ elif page == "Dataset Explorer":
     )
 
 
-# ============================================================
 # REPORTS AND DOWNLOADS
-# ============================================================
 
 elif page == "Reports & Downloads":
 
@@ -2009,9 +1960,7 @@ elif page == "Reports & Downloads":
         )
 
 
-# ============================================================
 # ABOUT PROJECT
-# ============================================================
 
 elif page == "About Project":
 
@@ -2311,9 +2260,7 @@ elif page == "About Project":
     st.write(" | ".join(technologies))
 
 
-# ============================================================
 # FOOTER
-# ============================================================
 
 st.markdown("""
 <div class="footer">
