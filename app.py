@@ -131,6 +131,10 @@ section[data-testid="stSidebar"] hr {
 
 /* Page headings */
 
+.page-header {
+    padding-top: 1.5rem;
+}
+
 .page-title {
     color: #142B4F;
     font-size: 30px;
@@ -391,6 +395,10 @@ section[data-testid="stSidebar"] hr {
         letter-spacing: -0.5px;
     }
 
+    .page-header {
+        padding-top: 1rem;
+    }
+
     .page-subtitle {
         font-size: 13px;
         margin-bottom: 18px;
@@ -547,8 +555,10 @@ def section(title, icon):
 def page_header(title, subtitle):
     st.markdown(
         f"""
-        <div class="page-title">{title}</div>
-        <div class="page-subtitle">{subtitle}</div>
+        <div class="page-header">
+            <div class="page-title">{title}</div>
+            <div class="page-subtitle">{subtitle}</div>
+        </div>
         """,
         unsafe_allow_html=True
     )
