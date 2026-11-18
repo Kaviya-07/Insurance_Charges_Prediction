@@ -1,10 +1,8 @@
-
 import streamlit as st
 import pandas as pd
 import numpy as np
 import joblib
 import plotly.express as px
-import plotly.graph_objects as go
 
 from io import BytesIO
 from datetime import datetime
@@ -38,10 +36,8 @@ html, body, [class*="css"] {
 }
 
 .stApp {
-    background-color: #f5f7fb;
+    background-color: #F5F9FF;
 }
-
-/* Main content */
 
 .block-container {
     padding-top: 2rem;
@@ -52,7 +48,7 @@ html, body, [class*="css"] {
 /* Sidebar */
 
 section[data-testid="stSidebar"] {
-    background: #101828;
+    background: #142B4F;
 }
 
 section[data-testid="stSidebar"] * {
@@ -63,11 +59,36 @@ section[data-testid="stSidebar"] .stMarkdown p {
     color: #aab4c5;
 }
 
+section[data-testid="stSidebar"] hr {
+    display: none;
+}
+
+/* Hide Streamlit's sidebar collapse buttons and resize grip. */
+[data-testid="stSidebarCollapseButton"],
+[data-testid="stSidebarExpandButton"],
+[data-testid="stSidebarCollapsedControl"],
+[data-testid="collapsedControl"],
+[data-testid="stSidebarResizeHandle"],
+[data-testid="baseButton-header"],
+[data-testid="stSidebarHeader"] button,
+[data-testid="stSidebarHeader"] [role="button"],
+[data-testid="stSidebar"] [aria-label="Collapse sidebar"],
+[data-testid="stSidebar"] [aria-label="Expand sidebar"] {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+[data-testid="stSidebar"] [data-testid="stSidebarResizeHandle"] {
+    width: 0 !important;
+    min-width: 0 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
 /* Brand */
 
 .brand-container {
     padding: 20px 12px 28px 12px;
-    border-bottom: 1px solid #293548;
     margin-bottom: 20px;
 }
 
@@ -79,11 +100,11 @@ section[data-testid="stSidebar"] .stMarkdown p {
 }
 
 .brand-name span {
-    color: #60a5fa;
+    color: #93C5FD;
 }
 
 .brand-subtitle {
-    color: #94a3b8;
+    color: #b5c7df;
     font-size: 11px;
     letter-spacing: 2px;
     margin-top: 5px;
@@ -94,23 +115,23 @@ section[data-testid="stSidebar"] .stMarkdown p {
 .nav-link {
     font-size: 14px !important;
     font-weight: 500 !important;
-    border-radius: 8px !important;
-    margin-bottom: 7px !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
 }
 
 .nav-link-selected {
-    background-color: #2563eb !important;
+    background-color: #4A90E2 !important;
     color: white !important;
 }
 
 .nav-link:hover {
-    background-color: #26364d !important;
+    background-color: #29466d !important;
 }
 
 /* Page headings */
 
 .page-title {
-    color: #172033;
+    color: #142B4F;
     font-size: 30px;
     font-weight: 800;
     letter-spacing: -1px;
@@ -118,7 +139,7 @@ section[data-testid="stSidebar"] .stMarkdown p {
 }
 
 .page-subtitle {
-    color: #718096;
+    color: #71839B;
     font-size: 14px;
     margin-bottom: 25px;
 }
@@ -129,7 +150,7 @@ section[data-testid="stSidebar"] .stMarkdown p {
     display: flex;
     align-items: center;
     gap: 10px;
-    color: #1e293b;
+    color: #142B4F;
     font-size: 18px;
     font-weight: 700;
     margin-top: 22px;
@@ -137,18 +158,19 @@ section[data-testid="stSidebar"] .stMarkdown p {
 }
 
 .section-heading i {
-    color: #2563eb;
+    color: #4A90E2;
     font-size: 20px;
 }
 
 /* Hero */
 
 .hero-card {
-    background: linear-gradient(120deg, #172554, #1d4ed8);
+    background: linear-gradient(120deg, #142B4F, #315F96);
     padding: 30px;
     border-radius: 16px;
     color: white;
     margin-bottom: 25px;
+    box-shadow: 0 8px 24px rgba(20, 43, 79, 0.12);
 }
 
 .hero-card h1 {
@@ -159,7 +181,7 @@ section[data-testid="stSidebar"] .stMarkdown p {
 }
 
 .hero-card p {
-    color: #dbeafe;
+    color: #DCEBFA;
     font-size: 14px;
     margin-bottom: 0;
 }
@@ -168,15 +190,21 @@ section[data-testid="stSidebar"] .stMarkdown p {
 
 .metric-card {
     background: white;
-    border: 1px solid #e8edf5;
+    border: 1px solid #DCE8F6;
     border-radius: 13px;
     padding: 19px;
     min-height: 125px;
-    box-shadow: 0 3px 12px rgba(15, 23, 42, 0.035);
+    box-shadow: 0 3px 12px rgba(20, 43, 79, 0.04);
+    transition: 0.2s ease;
+}
+
+.metric-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(20, 43, 79, 0.09);
 }
 
 .metric-label {
-    color: #718096;
+    color: #71839B;
     font-size: 12px;
     font-weight: 600;
     text-transform: uppercase;
@@ -184,14 +212,14 @@ section[data-testid="stSidebar"] .stMarkdown p {
 }
 
 .metric-value {
-    color: #172033;
+    color: #142B4F;
     font-size: 25px;
     font-weight: 800;
     margin-top: 12px;
 }
 
 .metric-icon {
-    color: #2563eb;
+    color: #4A90E2;
     font-size: 20px;
 }
 
@@ -199,31 +227,33 @@ section[data-testid="stSidebar"] .stMarkdown p {
 
 .info-card {
     background: white;
-    border: 1px solid #e8edf5;
+    border: 1px solid #DCE8F6;
     border-radius: 13px;
     padding: 20px;
     margin-bottom: 12px;
+    box-shadow: 0 3px 12px rgba(20, 43, 79, 0.035);
 }
 
 .info-card h4 {
-    color: #172033;
+    color: #142B4F;
     font-size: 16px;
     font-weight: 700;
 }
 
 .info-card p {
-    color: #718096;
+    color: #71839B;
     font-size: 13px;
 }
 
 /* Result card */
 
 .result-card {
-    background: linear-gradient(120deg, #eff6ff, #e0e7ff);
-    border: 1px solid #bfdbfe;
+    background: linear-gradient(120deg, #EAF3FF, #DCEBFA);
+    border: 1px solid #BBD5F2;
     border-radius: 15px;
     padding: 25px;
     margin-top: 20px;
+    box-shadow: 0 6px 18px rgba(74, 144, 226, 0.08);
 }
 
 .result-label {
@@ -233,7 +263,7 @@ section[data-testid="stSidebar"] .stMarkdown p {
 }
 
 .result-value {
-    color: #1d4ed8;
+    color: #142B4F;
     font-size: 34px;
     font-weight: 800;
     margin-top: 8px;
@@ -242,9 +272,9 @@ section[data-testid="stSidebar"] .stMarkdown p {
 /* Buttons */
 
 .stButton > button {
-    background: #2563eb;
+    background: #142B4F;
     color: white;
-    border: none;
+    border: 1px solid #142B4F;
     border-radius: 8px;
     padding: 10px 20px;
     font-weight: 600;
@@ -252,31 +282,32 @@ section[data-testid="stSidebar"] .stMarkdown p {
 }
 
 .stButton > button:hover {
-    background: #1d4ed8;
+    background: #315F96;
     color: white;
-    border: none;
+    border: 1px solid #315F96;
 }
 
 /* Download buttons */
 
 .stDownloadButton > button {
     background: #ffffff;
-    color: #1d4ed8;
-    border: 1px solid #2563eb;
+    color: #142B4F;
+    border: 1px solid #4A90E2;
     border-radius: 8px;
     font-weight: 600;
+    transition: 0.2s;
 }
 
 .stDownloadButton > button:hover {
-    background: #eff6ff;
-    color: #1d4ed8;
-    border-color: #1d4ed8;
+    background: #EAF3FF;
+    color: #142B4F;
+    border-color: #315F96;
 }
 
 /* Dataframes */
 
 [data-testid="stDataFrame"] {
-    border: 1px solid #e5eaf2;
+    border: 1px solid #DCE8F6;
     border-radius: 10px;
 }
 
@@ -289,11 +320,23 @@ section[data-testid="stSidebar"] .stMarkdown p {
     border-radius: 8px;
 }
 
+/* Chart containers */
+
+[data-testid="stPlotlyChart"] {
+    background: #FFFFFF;
+    border: 1px solid #DCE8F6;
+    border-radius: 14px;
+    padding: 10px 10px 2px 10px;
+    box-shadow: 0 3px 14px rgba(20, 43, 79, 0.045);
+    margin-bottom: 16px;
+    overflow: hidden;
+}
+
 /* Footer */
 
 .footer {
     text-align: center;
-    color: #94a3b8;
+    color: #71839B;
     font-size: 12px;
     padding: 25px 0 5px 0;
 }
@@ -419,6 +462,111 @@ def get_bmi_category(bmi):
 
 
 # ============================================================
+# PLOTLY CHART STYLING
+# ============================================================
+
+def style_chart(fig, height=390):
+
+    fig.update_layout(
+        template="plotly_white",
+        height=height,
+        autosize=True,
+
+        font=dict(
+            family="Inter, sans-serif",
+            size=12,
+            color="#52657D"
+        ),
+
+        title=dict(
+            font=dict(
+                family="Inter, sans-serif",
+                size=17,
+                color="#142B4F"
+            ),
+            x=0.03,
+            xanchor="left",
+            y=0.96,
+            yanchor="top"
+        ),
+
+        paper_bgcolor="#FFFFFF",
+        plot_bgcolor="#FFFFFF",
+
+        margin=dict(
+            l=28,
+            r=24,
+            t=72,
+            b=42
+        ),
+
+        hoverlabel=dict(
+            bgcolor="#142B4F",
+            bordercolor="#142B4F",
+            font=dict(
+                family="Inter, sans-serif",
+                size=12,
+                color="#FFFFFF"
+            )
+        ),
+
+        legend=dict(
+            title_text="",
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1,
+            bgcolor="rgba(255,255,255,0.75)",
+            font=dict(
+                size=11,
+                color="#52657D"
+            )
+        )
+    )
+
+    fig.update_xaxes(
+        showgrid=False,
+        showline=True,
+        linecolor="#DCE8F6",
+        linewidth=1,
+        ticks="outside",
+        tickcolor="#C7D7EA",
+        tickfont=dict(
+            size=11,
+            color="#71839B"
+        ),
+        title_font=dict(
+            size=12,
+            color="#52657D"
+        ),
+        zeroline=False,
+        automargin=True
+    )
+
+    fig.update_yaxes(
+        showgrid=True,
+        gridcolor="#EAF0F8",
+        gridwidth=1,
+        showline=False,
+        ticks="outside",
+        tickcolor="#C7D7EA",
+        tickfont=dict(
+            size=11,
+            color="#71839B"
+        ),
+        title_font=dict(
+            size=12,
+            color="#52657D"
+        ),
+        zeroline=False,
+        automargin=True
+    )
+
+    return fig
+
+
+# ============================================================
 # PREDICTION HISTORY
 # ============================================================
 
@@ -440,7 +588,7 @@ with st.sidebar:
     """, unsafe_allow_html=True)
 
     page = option_menu(
-        menu_title="MAIN MENU",
+        menu_title=None,
         options=[
             "Executive Dashboard",
             "Insurance Prediction",
@@ -455,12 +603,12 @@ with st.sidebar:
             "file-earmark-bar-graph-fill",
             "info-circle-fill"
         ],
-        menu_icon="cast",
+        menu_icon=None,
         default_index=0,
         styles={
             "container": {
                 "padding": "0!important",
-                "background-color": "#101828"
+                "background-color": "#142B4F"
             },
             "icon": {
                 "color": "#93c5fd",
@@ -469,32 +617,18 @@ with st.sidebar:
             "nav-link": {
                 "font-size": "13px",
                 "text-align": "left",
-                "margin": "5px 0px",
+                "margin": "0px",
                 "padding": "12px",
-                "border-radius": "8px",
+                "border-radius": "0px",
                 "color": "#cbd5e1"
             },
             "nav-link-selected": {
-                "background-color": "#2563eb",
+                "background-color": "#4A90E2",
                 "color": "#ffffff",
                 "font-weight": "600"
             }
         }
     )
-
-    st.markdown("---")
-
-    st.markdown(
-        """
-        <div style="font-size:11px;color:#94a3b8;line-height:1.8;">
-            <b>PROJECT STATUS</b><br>
-            Insurance Charges Prediction<br>
-            Machine Learning Regression
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
 
 # ============================================================
 # CHECK DATASET
@@ -530,8 +664,6 @@ if page == "Executive Dashboard":
         </p>
     </div>
     """, unsafe_allow_html=True)
-
-    # Dashboard filters
 
     section("Dashboard Filters", "sliders")
 
@@ -569,8 +701,6 @@ if page == "Executive Dashboard":
         st.warning("No records match the selected filters.")
 
     else:
-
-        # KPI cards
 
         section("Key Performance Indicators", "speedometer2")
 
@@ -612,7 +742,9 @@ if page == "Executive Dashboard":
                 "person-fill"
             )
 
-        # Charts
+        # ====================================================
+        # CHART 1: DISTRIBUTION OF INSURANCE CHARGES
+        # ====================================================
 
         section("Insurance Data Analysis", "bar-chart-line")
 
@@ -625,17 +757,35 @@ if page == "Executive Dashboard":
                 x="charges",
                 nbins=30,
                 title="Distribution of Insurance Charges",
-                color_discrete_sequence=["#2563eb"]
+                color_discrete_sequence=["#4A90E2"]
             )
 
             fig.update_layout(
-                template="plotly_white",
                 xaxis_title="Insurance Charges ($)",
-                yaxis_title="Number of Customers",
-                title_x=0.02
+                yaxis_title="Number of Customers"
             )
 
-            st.plotly_chart(fig, use_container_width=True)
+            fig.update_traces(
+                marker=dict(
+                    color="#4A90E2",
+                    line=dict(
+                        color="#FFFFFF",
+                        width=1
+                    )
+                ),
+                opacity=0.88
+            )
+
+            style_chart(fig)
+
+            st.plotly_chart(
+                fig,
+                use_container_width=True
+            )
+
+        # ====================================================
+        # CHART 2: AVERAGE CHARGES BY SMOKING STATUS
+        # ====================================================
 
         with col2:
 
@@ -653,22 +803,36 @@ if page == "Executive Dashboard":
                 title="Average Charges by Smoking Status",
                 text_auto=".2s",
                 color_discrete_map={
-                    "yes": "#ef4444",
-                    "no": "#2563eb"
+                    "yes": "#142B4F",
+                    "no": "#4A90E2"
                 }
             )
 
             fig.update_layout(
-                template="plotly_white",
                 xaxis_title="Smoking Status",
                 yaxis_title="Average Charges ($)",
-                showlegend=False,
-                title_x=0.02
+                showlegend=False
             )
 
-            st.plotly_chart(fig, use_container_width=True)
+            fig.update_traces(
+                marker_line_color="#FFFFFF",
+                marker_line_width=1,
+                textposition="outside",
+                cliponaxis=False
+            )
+
+            style_chart(fig)
+
+            st.plotly_chart(
+                fig,
+                use_container_width=True
+            )
 
         col3, col4 = st.columns(2)
+
+        # ====================================================
+        # CHART 3: AVERAGE CHARGES BY REGION
+        # ====================================================
 
         with col3:
 
@@ -685,18 +849,37 @@ if page == "Executive Dashboard":
                 color="region",
                 title="Average Insurance Charges by Region",
                 text_auto=".2s",
-                color_discrete_sequence=px.colors.qualitative.Set2
+                color_discrete_sequence=[
+                    "#142B4F",
+                    "#315F96",
+                    "#4A90E2",
+                    "#9CC8F2"
+                ]
             )
 
             fig.update_layout(
-                template="plotly_white",
                 xaxis_title="Region",
                 yaxis_title="Average Charges ($)",
-                showlegend=False,
-                title_x=0.02
+                showlegend=False
             )
 
-            st.plotly_chart(fig, use_container_width=True)
+            fig.update_traces(
+                marker_line_color="#FFFFFF",
+                marker_line_width=1,
+                textposition="outside",
+                cliponaxis=False
+            )
+
+            style_chart(fig)
+
+            st.plotly_chart(
+                fig,
+                use_container_width=True
+            )
+
+        # ====================================================
+        # CHART 4: AGE VS INSURANCE CHARGES
+        # ====================================================
 
         with col4:
 
@@ -709,21 +892,36 @@ if page == "Executive Dashboard":
                 hover_data=["sex", "region", "children"],
                 title="Age vs Insurance Charges",
                 color_discrete_map={
-                    "yes": "#ef4444",
-                    "no": "#2563eb"
+                    "yes": "#142B4F",
+                    "no": "#4A90E2"
                 }
             )
 
             fig.update_layout(
-                template="plotly_white",
                 xaxis_title="Age",
-                yaxis_title="Insurance Charges ($)",
-                title_x=0.02
+                yaxis_title="Insurance Charges ($)"
             )
 
-            st.plotly_chart(fig, use_container_width=True)
+            fig.update_traces(
+                marker=dict(
+                    opacity=0.76,
+                    line=dict(
+                        color="#FFFFFF",
+                        width=0.7
+                    )
+                )
+            )
 
-        # BMI analysis
+            style_chart(fig)
+
+            st.plotly_chart(
+                fig,
+                use_container_width=True
+            )
+
+        # ====================================================
+        # CHART 5: BMI VS INSURANCE CHARGES
+        # ====================================================
 
         section("BMI and Insurance Charges", "activity")
 
@@ -735,20 +933,246 @@ if page == "Executive Dashboard":
             hover_data=["age", "sex", "region"],
             title="BMI vs Insurance Charges",
             color_discrete_map={
-                "yes": "#ef4444",
-                "no": "#2563eb"
+                "yes": "#142B4F",
+                "no": "#4A90E2"
             }
         )
 
         fig.update_layout(
-            template="plotly_white",
             xaxis_title="BMI",
             yaxis_title="Insurance Charges ($)"
         )
 
-        st.plotly_chart(fig, use_container_width=True)
+        fig.update_traces(
+            marker=dict(
+                size=9,
+                opacity=0.76,
+                line=dict(
+                    color="#FFFFFF",
+                    width=0.7
+                )
+            )
+        )
 
-        # Correlation heatmap
+        style_chart(fig, height=430)
+
+        st.plotly_chart(
+            fig,
+            use_container_width=True
+        )
+
+        # ====================================================
+        # CHART 6: AVERAGE CHARGES BY AGE GROUP
+        # ====================================================
+
+        section("Age Group Analysis", "people")
+
+        age_data = filtered_df.copy()
+
+        age_data["Age Group"] = pd.cut(
+            age_data["age"],
+            bins=[17, 25, 35, 45, 55, 65, 101],
+            labels=[
+                "18-25",
+                "26-35",
+                "36-45",
+                "46-55",
+                "56-65",
+                "66+"
+            ]
+        )
+
+        age_group_data = (
+            age_data.groupby(
+                "Age Group",
+                observed=True
+            )["charges"]
+            .mean()
+            .reset_index()
+        )
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+
+            fig = px.bar(
+                age_group_data,
+                x="Age Group",
+                y="charges",
+                title="Average Insurance Charges by Age Group",
+                text_auto=".2s",
+                color="charges",
+                color_continuous_scale=[
+                    "#DCEBFA",
+                    "#4A90E2",
+                    "#142B4F"
+                ]
+            )
+
+            fig.update_layout(
+                xaxis_title="Age Group",
+                yaxis_title="Average Charges ($)",
+                coloraxis_showscale=False
+            )
+
+            fig.update_traces(
+                marker_line_color="#FFFFFF",
+                marker_line_width=1,
+                textposition="outside",
+                cliponaxis=False
+            )
+
+            style_chart(fig)
+
+            st.plotly_chart(
+                fig,
+                use_container_width=True
+            )
+
+        # ====================================================
+        # CHART 7: AVERAGE CHARGES BY NUMBER OF CHILDREN
+        # ====================================================
+
+        children_data = (
+            filtered_df.groupby("children")["charges"]
+            .mean()
+            .reset_index()
+        )
+
+        with col2:
+
+            fig = px.bar(
+                children_data,
+                x="children",
+                y="charges",
+                title="Average Charges by Number of Children",
+                text_auto=".2s",
+                color_discrete_sequence=["#315F96"]
+            )
+
+            fig.update_layout(
+                xaxis_title="Number of Children",
+                yaxis_title="Average Charges ($)"
+            )
+
+            fig.update_traces(
+                marker_line_color="#FFFFFF",
+                marker_line_width=1,
+                textposition="outside",
+                cliponaxis=False
+            )
+
+            style_chart(fig)
+
+            st.plotly_chart(
+                fig,
+                use_container_width=True
+            )
+
+        # ====================================================
+        # CHART 8: CHARGES DISTRIBUTION BY SMOKING STATUS
+        # ====================================================
+
+        section("Smoking Impact Analysis", "activity")
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+
+            fig = px.box(
+                filtered_df,
+                x="smoker",
+                y="charges",
+                color="smoker",
+                title="Insurance Charges Distribution by Smoking Status",
+                points="outliers",
+                color_discrete_map={
+                    "yes": "#142B4F",
+                    "no": "#4A90E2"
+                }
+            )
+
+            fig.update_layout(
+                xaxis_title="Smoking Status",
+                yaxis_title="Insurance Charges ($)",
+                showlegend=False
+            )
+
+            fig.update_traces(
+                marker=dict(
+                    size=5,
+                    opacity=0.65
+                ),
+                line=dict(width=2)
+            )
+
+            style_chart(fig)
+
+            st.plotly_chart(
+                fig,
+                use_container_width=True
+            )
+
+        # ====================================================
+        # CHART 9: AVERAGE CHARGES BY BMI CATEGORY
+        # ====================================================
+
+        bmi_data = filtered_df.copy()
+
+        bmi_data["BMI Category"] = pd.cut(
+            bmi_data["bmi"],
+            bins=[0, 18.5, 25, 30, float("inf")],
+            labels=[
+                "Underweight",
+                "Normal",
+                "Overweight",
+                "Obese"
+            ],
+            right=False
+        )
+
+        bmi_category_data = (
+            bmi_data.groupby(
+                "BMI Category",
+                observed=True
+            )["charges"]
+            .mean()
+            .reset_index()
+        )
+
+        with col2:
+
+            fig = px.bar(
+                bmi_category_data,
+                x="BMI Category",
+                y="charges",
+                title="Average Charges by BMI Category",
+                text_auto=".2s",
+                color_discrete_sequence=["#4A90E2"]
+            )
+
+            fig.update_layout(
+                xaxis_title="BMI Category",
+                yaxis_title="Average Charges ($)"
+            )
+
+            fig.update_traces(
+                marker_line_color="#FFFFFF",
+                marker_line_width=1,
+                textposition="outside",
+                cliponaxis=False
+            )
+
+            style_chart(fig)
+
+            st.plotly_chart(
+                fig,
+                use_container_width=True
+            )
+
+        # ====================================================
+        # CHART 10: CORRELATION HEATMAP
+        # ====================================================
 
         section("Correlation Analysis", "diagram-3")
 
@@ -761,16 +1185,30 @@ if page == "Executive Dashboard":
         fig = px.imshow(
             correlation,
             text_auto=".2f",
-            color_continuous_scale="RdBu_r",
+            color_continuous_scale=[
+                "#142B4F",
+                "#FFFFFF",
+                "#9CC8F2"
+            ],
             aspect="auto",
             title="Correlation Between Numerical Features"
         )
 
-        fig.update_layout(template="plotly_white")
+        fig.update_traces(
+            xgap=3,
+            ygap=3
+        )
 
-        st.plotly_chart(fig, use_container_width=True)
+        style_chart(fig, height=470)
 
-        # Business insights
+        st.plotly_chart(
+            fig,
+            use_container_width=True
+        )
+
+        # ====================================================
+        # BUSINESS INSIGHTS
+        # ====================================================
 
         section("Business Insights", "lightbulb")
 
@@ -826,8 +1264,6 @@ if page == "Executive Dashboard":
             </div>
             """, unsafe_allow_html=True)
 
-        # Dashboard download
-
         section("Export Dashboard Data", "download")
 
         st.download_button(
@@ -836,9 +1272,7 @@ if page == "Executive Dashboard":
             file_name="insurance_dashboard_data.csv",
             mime="text/csv"
         )
-
-
-# ============================================================
+        # ============================================================
 # INSURANCE PREDICTION
 # ============================================================
 
@@ -978,8 +1412,6 @@ elif page == "Insurance Prediction":
                     smoker.title(),
                     "person"
                 )
-
-            # Save prediction history
 
             prediction_record = {
                 "Date and Time": datetime.now().strftime(
@@ -1160,10 +1592,13 @@ elif page == "Dataset Explorer":
 
     section("Descriptive Statistics", "calculator")
 
-    st.dataframe(
-        filtered_data.describe(),
-        use_container_width=True
-    )
+    if not filtered_data.empty:
+        st.dataframe(
+            filtered_data.describe(),
+            use_container_width=True
+        )
+    else:
+        st.info("No data available for descriptive statistics.")
 
     # Data types
 
@@ -1389,11 +1824,11 @@ elif page == "About Project":
                 padding:12px 16px;
                 border-radius:8px;
                 margin-bottom:8px;
-                border:1px solid #e8edf5;
+                border:1px solid #DCE8F6;
                 color:#475569;
                 font-size:14px;">
                 <i class="bi bi-check-circle-fill"
-                   style="color:#2563eb;margin-right:10px;"></i>
+                   style="color:#4A90E2;margin-right:10px;"></i>
                 {item}
             </div>
             """,
@@ -1460,7 +1895,7 @@ elif page == "About Project":
                 f"""
                 <div class="info-card">
                     <i class="bi bi-cpu"
-                       style="color:#2563eb;font-size:18px;"></i>
+                       style="color:#4A90E2;font-size:18px;"></i>
                     <span style="
                         color:#334155;
                         font-size:14px;
