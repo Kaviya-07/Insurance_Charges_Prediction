@@ -5,6 +5,8 @@ An end-to-end regression project for exploring medical insurance charges, traini
 **Live application:** [Insurance Charges Prediction](https://insurancecharges-prediction.streamlit.app/)  
 **Repository:** [Kaviya-07/Insurance_Charges_Prediction](https://github.com/Kaviya-07/Insurance_Charges_Prediction)
 
+**End-user guide:** [USER_GUIDE.md](USER_GUIDE.md)
+
 ## Overview and problem statement
 
 Insurance charges vary across customer profiles. This project frames charge estimation as supervised regression: given demographic and lifestyle attributes, estimate the continuous `charges` target. The work demonstrates data inspection, exploratory analysis, preprocessing, model comparison, evaluation, feature interpretation, and deployment in one project.
