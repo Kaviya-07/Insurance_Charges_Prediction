@@ -1,0 +1,116 @@
+{
+  "best_model": "Gradient Boosting",
+  "selection_method": "Shuffled five-fold cross-validation on the training partition; final metrics use a separate holdout test partition.",
+  "dataset_records": 1337,
+  "train_records": 1069,
+  "test_records": 268,
+  "trained_models": [
+    "Linear Regression",
+    "Ridge Regression",
+    "Lasso Regression",
+    "Decision Tree",
+    "Random Forest",
+    "Gradient Boosting"
+  ],
+  "baseline_cv_r2": 0.8394823417638012,
+  "tuned_cv_r2": 0.8394823417638012,
+  "test_metrics": {
+    "R2": 0.9194614624904238,
+    "MAE": 2121.8725735819594,
+    "MSE": 11610075.150790757,
+    "RMSE": 3407.3560352259574
+  },
+  "mae_95_ci": [
+    1831.587610900372,
+    2455.1352842090873
+  ],
+  "comparison": [
+    {
+      "Model": "Gradient Boosting",
+      "CV R2 Mean": 0.8394823417638012,
+      "CV R2 Std": 0.04314822731205947,
+      "CV MAE Mean": 2774.4775698251424,
+      "CV MSE Mean": 23102217.763121672,
+      "CV RMSE Mean": 4760.335130446763,
+      "CV RMSE Std": 742.8216550391357
+    },
+    {
+      "Model": "Random Forest",
+      "CV R2 Mean": 0.820362469629362,
+      "CV R2 Std": 0.05965049096055734,
+      "CV MAE Mean": 2845.683458198965,
+      "CV MSE Mean": 25435021.80856441,
+      "CV RMSE Mean": 4999.476394240014,
+      "CV RMSE Std": 741.8369025612024
+    },
+    {
+      "Model": "Ridge Regression",
+      "CV R2 Mean": 0.7224889262163321,
+      "CV R2 Std": 0.040145525582007235,
+      "CV MAE Mean": 4398.385047697074,
+      "CV MSE Mean": 40049867.889847204,
+      "CV RMSE Mean": 6297.009533061488,
+      "CV RMSE Std": 704.9280374442071
+    },
+    {
+      "Model": "Lasso Regression",
+      "CV R2 Mean": 0.7224499404849596,
+      "CV R2 Std": 0.0402549999264299,
+      "CV MAE Mean": 4392.586851537771,
+      "CV MSE Mean": 40049022.45068943,
+      "CV RMSE Mean": 6297.113725665609,
+      "CV RMSE Std": 703.012425853225
+    },
+    {
+      "Model": "Linear Regression",
+      "CV R2 Mean": 0.7224491069270915,
+      "CV R2 Std": 0.04025684702288486,
+      "CV MAE Mean": 4392.588923721121,
+      "CV MSE Mean": 40049046.15780513,
+      "CV RMSE Mean": 6297.11820239077,
+      "CV RMSE Std": 702.9833772252113
+    },
+    {
+      "Model": "Decision Tree",
+      "CV R2 Mean": 0.6718215910890344,
+      "CV R2 Std": 0.14126706531721042,
+      "CV MAE Mean": 3223.1486625254574,
+      "CV MSE Mean": 45416859.98964009,
+      "CV RMSE Mean": 6674.317296207182,
+      "CV RMSE Std": 1043.0415974385537
+    }
+  ],
+  "feature_importance_method": "Native tree feature importance",
+  "feature_importance": [
+    {
+      "Feature": "smoker",
+      "Importance": 0.6919406586770547,
+      "Importance Std": 0.0
+    },
+    {
+      "Feature": "bmi",
+      "Importance": 0.18088174114292258,
+      "Importance Std": 0.0
+    },
+    {
+      "Feature": "age",
+      "Importance": 0.11311347230227235,
+      "Importance Std": 0.0
+    },
+    {
+      "Feature": "children",
+      "Importance": 0.010654462341399003,
+      "Importance Std": 0.0
+    },
+    {
+      "Feature": "region",
+      "Importance": 0.002645189174934677,
+      "Importance Std": 0.0
+    },
+    {
+      "Feature": "sex",
+      "Importance": 0.000764476361416558,
+      "Importance Std": 0.0
+    }
+  ]
+}

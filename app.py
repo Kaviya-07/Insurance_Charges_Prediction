@@ -1,3 +1,4 @@
+import json
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -332,6 +333,23 @@ section[data-testid="stSidebar"] hr {
     overflow: hidden;
 }
 
+/* Centered, non-modal guide. The sidebar remains available while it is open. */
+.st-key-project_tour {
+    position: fixed !important;
+    top: 50vh !important;
+    left: 50vw !important;
+    transform: translate(-50%, -50%) !important;
+    width: min(600px, calc(100vw - 2rem)) !important;
+    max-height: 84vh;
+    overflow-y: auto;
+    z-index: 1000000;
+    padding: 1.25rem 1.4rem;
+    background: #FFFFFF;
+    border: 1px solid #BBD5F2;
+    border-radius: 16px;
+    box-shadow: 0 18px 55px rgba(20, 43, 79, 0.25);
+}
+
 /* Footer */
 
 .footer {
@@ -339,6 +357,107 @@ section[data-testid="stSidebar"] hr {
     color: #71839B;
     font-size: 12px;
     padding: 25px 0 5px 0;
+}
+
+/* Tablet and mobile layout */
+@media (max-width: 980px) {
+    .block-container {
+        padding-left: 1.25rem;
+        padding-right: 1.25rem;
+    }
+
+    .metric-card {
+        padding: 15px;
+    }
+
+    .metric-value {
+        font-size: 21px;
+        overflow-wrap: anywhere;
+    }
+}
+
+@media (max-width: 640px) {
+    html, body, [data-testid="stAppViewContainer"], .main {
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    .block-container {
+        padding: 1rem 0.75rem 1.5rem 0.75rem;
+    }
+
+    .page-title {
+        font-size: 24px;
+        letter-spacing: -0.5px;
+    }
+
+    .page-subtitle {
+        font-size: 13px;
+        margin-bottom: 18px;
+    }
+
+    .hero-card {
+        padding: 20px 16px;
+        border-radius: 12px;
+    }
+
+    .hero-card h1 {
+        font-size: 23px;
+    }
+
+    .stHorizontalBlock {
+        flex-wrap: wrap !important;
+        gap: 0.75rem !important;
+    }
+
+    .stHorizontalBlock > div {
+        min-width: 100% !important;
+        width: 100% !important;
+        flex: 1 1 100% !important;
+    }
+
+    .metric-card {
+        min-height: 0;
+        padding: 15px;
+    }
+
+    .metric-value {
+        font-size: 22px;
+    }
+
+    [data-testid="stDataFrame"],
+    [data-testid="stPlotlyChart"] {
+        max-width: 100%;
+        overflow-x: auto;
+    }
+
+    [data-testid="stPlotlyChart"] > div {
+        max-width: 100%;
+    }
+
+    .stDownloadButton,
+    .stDownloadButton > button {
+        width: 100%;
+    }
+
+    .st-key-project_tour {
+        width: calc(100vw - 1rem) !important;
+        max-height: 78vh;
+        padding: 1rem;
+    }
+
+    /* Keep the native sidebar controls available so mobile users can open
+       and close the navigation drawer. The desktop resize grip stays hidden. */
+    [data-testid="stSidebarCollapseButton"],
+    [data-testid="stSidebarExpandButton"],
+    [data-testid="stSidebarCollapsedControl"],
+    [data-testid="collapsedControl"],
+    [data-testid="baseButton-header"],
+    [data-testid="stSidebarHeader"] button,
+    [data-testid="stSidebarHeader"] [role="button"] {
+        display: flex !important;
+        visibility: visible !important;
+    }
 }
 
 </style>
@@ -351,6 +470,7 @@ section[data-testid="stSidebar"] hr {
 
 MODEL_PATH = "insurance_charges_model.pkl"
 DATA_PATH = "insurance.csv"
+EVALUATION_PATH = "model_evaluation.json"
 
 
 # ============================================================
@@ -362,6 +482,9 @@ def load_model():
     try:
         return joblib.load(MODEL_PATH)
     except FileNotFoundError:
+        return None
+    except Exception as error:
+        st.error(f"Unable to load dataset: {error}")
         return None
     except Exception as error:
         st.error(f"Unable to load model: {error}")
@@ -383,12 +506,26 @@ def load_data():
         return data
     except FileNotFoundError:
         return None
-    except Exception as error:
-        st.error(f"Unable to load dataset: {error}")
+
+
+@st.cache_data
+def load_evaluation():
+    try:
+        with open(EVALUATION_PATH, "r", encoding="utf-8") as evaluation_file:
+            return json.load(evaluation_file)
+    except FileNotFoundError:
         return None
+    except (json.JSONDecodeError, OSError) as error:
+        return {"_load_error": str(error)}
+    except Exception as error:
+        return {"_load_error": str(error)}
 
 
 df = load_data()
+evaluation = load_evaluation()
+if evaluation and "_load_error" in evaluation:
+    st.warning(f"Unable to load model evaluation results: {evaluation['_load_error']}")
+    evaluation = None
 
 
 # ============================================================
@@ -459,6 +596,99 @@ def get_bmi_category(bmi):
         return "Overweight"
     else:
         return "Obesity range"
+
+
+PROJECT_TOUR_STEPS = [
+    (
+        "Executive Dashboard",
+        "Use the dashboard filters to explore customer groups. KPI cards and charts summarize insurance charges across age, BMI, smoking status, and region. You can export the filtered data as CSV."
+    ),
+    (
+        "Insurance Prediction",
+        "Enter a customer profile to get an estimated charge from the trained preprocessing and regression pipeline. Predictions are estimates, not insurance quotations. You can review and export prediction history."
+    ),
+    (
+        "Dataset Explorer",
+        "Filter the source records and inspect dataset summaries, data types, and missing values. CSV and Excel downloads are available for the filtered data."
+    ),
+    (
+        "Reports & Downloads",
+        "Create summary, smoking-status, and regional reports, then download them in the available CSV or Excel formats."
+    ),
+    (
+        "About Project",
+        "Review the project methods, current holdout metrics, cross-validated model comparison, calculated feature importance, and prediction limitations."
+    )
+]
+
+
+def sync_tour_to_sidebar(key):
+    if st.session_state.get("project_tour_state") == "touring":
+        selected_page = st.session_state.get(key)
+        for index, (page_name, _) in enumerate(PROJECT_TOUR_STEPS):
+            if page_name == selected_page:
+                st.session_state.project_tour_step = index
+                break
+
+
+def show_project_tour():
+    with st.container(key="project_tour", border=True):
+        tour_state = st.session_state.get("project_tour_state", "welcome")
+
+        if tour_state == "welcome":
+            st.subheader("Welcome to InsureAI")
+            st.write(
+                "Take a short tour of the dashboard, prediction workflow, dataset "
+                "tools, reports, and model results. You can skip it and explore "
+                "the five pages from the sidebar at any time."
+            )
+            start_col, skip_col = st.columns(2)
+            with start_col:
+                if st.button("Take a quick tour", type="primary", width="stretch"):
+                    st.session_state.project_tour_state = "touring"
+                    st.session_state.project_tour_step = 0
+                    st.session_state["main_navigation"] = PROJECT_TOUR_STEPS[0][0]
+                    st.rerun()
+            with skip_col:
+                if st.button("Skip tour", width="stretch"):
+                    st.session_state.project_tour_state = "complete"
+                    st.rerun()
+            return
+
+        step = st.session_state.get("project_tour_step", 0)
+        step = max(0, min(step, len(PROJECT_TOUR_STEPS) - 1))
+        title, description = PROJECT_TOUR_STEPS[step]
+        st.progress((step + 1) / len(PROJECT_TOUR_STEPS))
+        st.caption(f"Page {step + 1} of {len(PROJECT_TOUR_STEPS)}")
+        st.subheader(title)
+        st.caption("This page is open behind the tour guide.")
+        st.write(description)
+
+        previous_col, next_col, skip_col = st.columns(3)
+        with previous_col:
+            if st.button("Back", disabled=step == 0, width="stretch"):
+                st.session_state.project_tour_step = step - 1
+                st.session_state["main_navigation"] = PROJECT_TOUR_STEPS[step - 1][0]
+                st.rerun()
+        with next_col:
+            next_label = "Finish" if step == len(PROJECT_TOUR_STEPS) - 1 else "Next"
+            if st.button(next_label, type="primary", width="stretch"):
+                if step == len(PROJECT_TOUR_STEPS) - 1:
+                    st.session_state.project_tour_state = "complete"
+                else:
+                    st.session_state.project_tour_step = step + 1
+                    st.session_state["main_navigation"] = PROJECT_TOUR_STEPS[step + 1][0]
+                st.rerun()
+        with skip_col:
+            if st.button("Skip", width="stretch"):
+                st.session_state.project_tour_state = "complete"
+                st.rerun()
+
+if "project_tour_state" not in st.session_state:
+    st.session_state.project_tour_state = "welcome"
+
+if st.session_state.project_tour_state != "complete":
+    show_project_tour()
 
 
 # ============================================================
@@ -605,6 +835,8 @@ with st.sidebar:
         ],
         menu_icon=None,
         default_index=0,
+        key="main_navigation",
+        on_change=sync_tour_to_sidebar,
         styles={
             "container": {
                 "padding": "0!important",
@@ -780,7 +1012,7 @@ if page == "Executive Dashboard":
 
             st.plotly_chart(
                 fig,
-                use_container_width=True
+                width="stretch"
             )
 
         # ====================================================
@@ -825,7 +1057,7 @@ if page == "Executive Dashboard":
 
             st.plotly_chart(
                 fig,
-                use_container_width=True
+                width="stretch"
             )
 
         col3, col4 = st.columns(2)
@@ -874,7 +1106,7 @@ if page == "Executive Dashboard":
 
             st.plotly_chart(
                 fig,
-                use_container_width=True
+                width="stretch"
             )
 
         # ====================================================
@@ -916,7 +1148,7 @@ if page == "Executive Dashboard":
 
             st.plotly_chart(
                 fig,
-                use_container_width=True
+                width="stretch"
             )
 
         # ====================================================
@@ -958,7 +1190,7 @@ if page == "Executive Dashboard":
 
         st.plotly_chart(
             fig,
-            use_container_width=True
+            width="stretch"
         )
 
         # ====================================================
@@ -1026,7 +1258,7 @@ if page == "Executive Dashboard":
 
             st.plotly_chart(
                 fig,
-                use_container_width=True
+                width="stretch"
             )
 
         # ====================================================
@@ -1066,7 +1298,7 @@ if page == "Executive Dashboard":
 
             st.plotly_chart(
                 fig,
-                use_container_width=True
+                width="stretch"
             )
 
         # ====================================================
@@ -1110,7 +1342,7 @@ if page == "Executive Dashboard":
 
             st.plotly_chart(
                 fig,
-                use_container_width=True
+                width="stretch"
             )
 
         # ====================================================
@@ -1167,7 +1399,7 @@ if page == "Executive Dashboard":
 
             st.plotly_chart(
                 fig,
-                use_container_width=True
+                width="stretch"
             )
 
         # ====================================================
@@ -1203,7 +1435,7 @@ if page == "Executive Dashboard":
 
         st.plotly_chart(
             fig,
-            use_container_width=True
+            width="stretch"
         )
 
         # ====================================================
@@ -1348,7 +1580,7 @@ elif page == "Insurance Prediction":
 
         submitted = st.form_submit_button(
             "Predict Insurance Charges",
-            use_container_width=True
+            width="stretch"
         )
 
     if submitted:
@@ -1449,7 +1681,7 @@ elif page == "Insurance Prediction":
 
         st.dataframe(
             history_df,
-            use_container_width=True,
+            width="stretch",
             hide_index=True
         )
 
@@ -1560,7 +1792,7 @@ elif page == "Dataset Explorer":
 
     st.dataframe(
         filtered_data,
-        use_container_width=True,
+        width="stretch",
         hide_index=True
     )
 
@@ -1575,7 +1807,7 @@ elif page == "Dataset Explorer":
             data=filtered_data.to_csv(index=False).encode("utf-8"),
             file_name="filtered_insurance_data.csv",
             mime="text/csv",
-            use_container_width=True
+            width="stretch"
         )
 
     with col2:
@@ -1585,7 +1817,7 @@ elif page == "Dataset Explorer":
             data=make_excel(filtered_data, "Insurance Data"),
             file_name="filtered_insurance_data.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            use_container_width=True
+            width="stretch"
         )
 
     # Statistical summary
@@ -1595,7 +1827,7 @@ elif page == "Dataset Explorer":
     if not filtered_data.empty:
         st.dataframe(
             filtered_data.describe(),
-            use_container_width=True
+            width="stretch"
         )
     else:
         st.info("No data available for descriptive statistics.")
@@ -1613,7 +1845,7 @@ elif page == "Dataset Explorer":
 
     st.dataframe(
         info_df,
-        use_container_width=True,
+        width="stretch",
         hide_index=True
     )
 
@@ -1635,16 +1867,13 @@ elif page == "Reports & Downloads":
 
     summary = df.describe().T.reset_index()
 
-    summary.rename(
-        columns={"index": "Feature"},
-        inplace=True
-    )
+    summary = summary.rename(columns={"index": "Feature"})
 
     section("Dataset Summary Report", "clipboard-data")
 
     st.dataframe(
         summary,
-        use_container_width=True,
+        width="stretch",
         hide_index=True
     )
 
@@ -1672,7 +1901,7 @@ elif page == "Reports & Downloads":
             data=df.to_csv(index=False).encode("utf-8"),
             file_name="complete_insurance_dataset.csv",
             mime="text/csv",
-            use_container_width=True
+            width="stretch"
         )
 
     with col2:
@@ -1682,7 +1911,7 @@ elif page == "Reports & Downloads":
             data=make_excel(df, "Insurance Data"),
             file_name="complete_insurance_dataset.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            use_container_width=True
+            width="stretch"
         )
 
     # Smoking analysis
@@ -1702,7 +1931,7 @@ elif page == "Reports & Downloads":
 
     st.dataframe(
         smoking_report,
-        use_container_width=True,
+        width="stretch",
         hide_index=True
     )
 
@@ -1729,7 +1958,7 @@ elif page == "Reports & Downloads":
 
     st.dataframe(
         region_report,
-        use_container_width=True,
+        width="stretch",
         hide_index=True
     )
 
@@ -1752,7 +1981,7 @@ elif page == "Reports & Downloads":
 
         st.dataframe(
             history_df,
-            use_container_width=True,
+            width="stretch",
             hide_index=True
         )
 
@@ -1869,67 +2098,191 @@ elif page == "About Project":
 
     st.dataframe(
         feature_info,
-        use_container_width=True,
+        width="stretch",
         hide_index=True
     )
 
-    section("Machine Learning Algorithms", "cpu")
+    section("Models Trained in the Latest Run", "cpu")
 
-    algorithms = [
-        "Linear Regression",
-        "Ridge Regression",
-        "Lasso Regression",
-        "Decision Tree Regression",
-        "Random Forest Regression",
-        "Gradient Boosting Regression",
-        "XGBoost Regression (optional)"
-    ]
+    if evaluation and evaluation.get("trained_models"):
+        st.write(" ? ".join(evaluation["trained_models"]))
+        st.caption(evaluation.get("selection_method", ""))
+    else:
+        st.info("Run insurance_prediction.ipynb to save the models from the latest training run.")
 
-    col1, col2 = st.columns(2)
+    if evaluation and evaluation.get("test_metrics"):
+        section("Best Model ? Held-Out Test Results", "award")
+        st.markdown(
+            f"**{evaluation['best_model']}** was selected using training-only "
+            "cross-validation. These scores come from a separate holdout "
+            "partition that was not used for model selection or tuning."
+        )
 
-    for index, algorithm in enumerate(algorithms):
+        test_metrics = evaluation["test_metrics"]
+        score_cards = st.columns(4)
+        card_values = [
+            ("R? Score", f"{test_metrics['R2']:.4f}", "graph-up"),
+            ("MAE", f"${test_metrics['MAE']:,.2f}", "cash"),
+            ("MSE", f"{test_metrics['MSE']:,.0f}", "calculator"),
+            ("RMSE", f"${test_metrics['RMSE']:,.2f}", "activity")
+        ]
+        for column, (label, value, icon) in zip(score_cards, card_values):
+            with column:
+                metric_card(label, value, icon)
 
-        with col1 if index % 2 == 0 else col2:
-
-            st.markdown(
-                f"""
-                <div class="info-card">
-                    <i class="bi bi-cpu"
-                       style="color:#4A90E2;font-size:18px;"></i>
-                    <span style="
-                        color:#334155;
-                        font-size:14px;
-                        font-weight:600;
-                        margin-left:8px;">
-                        {algorithm}
-                    </span>
-                </div>
-                """,
-                unsafe_allow_html=True
+        interval = evaluation.get("mae_95_ci")
+        if interval and len(interval) == 2:
+            st.caption(
+                "Bootstrap 95% interval for holdout MAE: "
+                f"${interval[0]:,.2f}?${interval[1]:,.2f}."
             )
 
-    section("Evaluation Metrics", "clipboard2-data")
+        section("Cross-Validated Model Comparison", "bar-chart-line")
+        comparison = pd.DataFrame(evaluation.get("comparison", []))
+        comparison_columns = [
+            "Model", "CV R2 Mean", "CV MAE Mean", "CV MSE Mean", "CV RMSE Mean"
+        ]
+        if not comparison.empty and all(c in comparison.columns for c in comparison_columns):
+            comparison = comparison[comparison_columns].rename(columns={
+                "CV R2 Mean": "CV R? (mean)",
+                "CV MAE Mean": "CV MAE (mean)",
+                "CV MSE Mean": "CV MSE (mean)",
+                "CV RMSE Mean": "CV RMSE (mean)"
+            })
+            st.dataframe(
+                comparison.style.highlight_max(
+                    subset=["CV R? (mean)"], color="#DCEBFA"
+                ).format({
+                    "CV R? (mean)": "{:.4f}",
+                    "CV MAE (mean)": "${:,.2f}",
+                    "CV MSE (mean)": "{:,.0f}",
+                    "CV RMSE (mean)": "${:,.2f}"
+                }),
+                width="stretch",
+                hide_index=True
+            )
 
-    metrics = pd.DataFrame({
-        "Metric": [
-            "R² Score",
-            "Mean Absolute Error (MAE)",
-            "Mean Squared Error (MSE)",
-            "Root Mean Squared Error (RMSE)"
+            metric_options = {
+                "Cross-validation R? (higher is better)": ("CV R? (mean)", True),
+                "Cross-validation MAE (lower is better)": ("CV MAE (mean)", False),
+                "Cross-validation MSE (lower is better)": ("CV MSE (mean)", False),
+                "Cross-validation RMSE (lower is better)": ("CV RMSE (mean)", False)
+            }
+            selected_metric = st.selectbox(
+                "Compare models by", list(metric_options), key="model_comparison_metric"
+            )
+            metric_column, higher_is_better = metric_options[selected_metric]
+            best_index = (
+                comparison[metric_column].idxmax()
+                if higher_is_better
+                else comparison[metric_column].idxmin()
+            )
+            chart_data = comparison[["Model", metric_column]].copy()
+            chart_data["Result"] = np.where(
+                chart_data.index == best_index,
+                "Best on this metric",
+                "Other models"
+            )
+            chart_data["Label"] = chart_data[metric_column].map(
+                lambda value: f"{value:.4f}" if higher_is_better else f"{value:,.0f}"
+            )
+            comparison_fig = px.bar(
+                chart_data,
+                x="Model",
+                y=metric_column,
+                color="Result",
+                text="Label",
+                color_discrete_map={
+                    "Best on this metric": "#142B4F",
+                    "Other models": "#93C5FD"
+                },
+                title=selected_metric
+            )
+            comparison_fig.update_traces(textposition="outside")
+            comparison_fig.update_layout(
+                template="plotly_white", height=390, autosize=True,
+                xaxis_title=None, yaxis_title=metric_column,
+                legend_title_text="", margin=dict(l=20, r=20, t=65, b=85)
+            )
+            st.plotly_chart(
+                comparison_fig,
+                width="stretch",
+                config={"responsive": True, "displayModeBar": False}
+            )
+            st.caption(
+                "Comparison values are five-fold cross-validation means on the "
+                "training partition. Holdout metrics above are shown only for "
+                "the selected model."
+            )
+        else:
+            st.info("Run the modeling notebook to refresh the model comparison results.")
+
+        section("Feature Importance", "sliders")
+        importance = pd.DataFrame(evaluation.get("feature_importance", []))
+        if not importance.empty and {"Feature", "Importance"}.issubset(importance.columns):
+            importance = importance.sort_values("Importance", ascending=True)
+            error_column = (
+                "Importance Std"
+                if "Importance Std" in importance.columns
+                and importance["Importance Std"].fillna(0).any()
+                else None
+            )
+            importance_fig = px.bar(
+                importance,
+                x="Importance",
+                y="Feature",
+                orientation="h",
+                error_x=error_column,
+                title=evaluation.get("feature_importance_method", "Feature importance"),
+                color_discrete_sequence=["#4A90E2"]
+            )
+            importance_fig.update_layout(
+                template="plotly_white",
+                height=max(300, 55 * len(importance)),
+                autosize=True,
+                xaxis_title="Aggregated predictive importance",
+                yaxis_title=None,
+                margin=dict(l=20, r=20, t=65, b=45)
+            )
+            st.plotly_chart(
+                importance_fig,
+                width="stretch",
+                config={"responsive": True, "displayModeBar": False}
+            )
+            st.caption(
+                f"Highest calculated importance in this run: {importance.iloc[-1]['Feature']}. "
+                "Importance describes predictive contribution or association, not causation."
+            )
+        else:
+            st.info("Feature importance will appear after running the modeling notebook.")
+
+    section("Evaluation Metric Guide", "clipboard2-data")
+    metric_guide = pd.DataFrame({
+        "Metric": ["R? Score", "MAE", "MSE", "RMSE"],
+        "Meaning": [
+            "Proportion of target variation explained by the model.",
+            "Average absolute prediction error, in charge units.",
+            "Average squared prediction error; large errors receive more weight.",
+            "Square root of MSE, in the same units as charges."
         ],
-        "Purpose": [
-            "Measures how much variation in the target is explained by the model.",
-            "Measures the average absolute prediction error.",
-            "Measures the average squared prediction error.",
-            "Measures prediction error in the target's original units."
+        "Better value": [
+            "Higher (1 is best; may be negative)",
+            "Lower (0 is best)", "Lower (0 is best)", "Lower (0 is best)"
         ]
     })
+    st.dataframe(metric_guide, width="stretch", hide_index=True)
 
-    st.dataframe(
-        metrics,
-        use_container_width=True,
-        hide_index=True
-    )
+    section("Prediction Limitations", "exclamation-triangle")
+    st.markdown("""
+    <div class="info-card">
+        <p>Predictions are estimates, not insurance quotations. They depend on
+        the training dataset and may be less reliable for profiles outside its
+        observed ranges. Real pricing may use additional information. Feature
+        importance and correlations describe patterns in this dataset, not causes.
+        Do not use this tool as a substitute for professional insurance advice
+        or underwriting review.</p>
+    </div>
+    """, unsafe_allow_html=True)
 
     section("Technologies Used", "tools")
 
